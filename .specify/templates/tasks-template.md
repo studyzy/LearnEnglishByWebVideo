@@ -43,11 +43,13 @@ description: "功能实现任务列表模板"
 
 ## 阶段 1: 设置(共享基础设施)
 
-**目的**: 项目初始化和基本结构
+**目的**: Chrome扩展项目初始化和基本结构
 
-- [ ] T001 根据实施计划创建项目结构
-- [ ] T002 使用 [framework] 依赖项初始化 [language] 项目
-- [ ] T003 [P] 配置代码检查和格式化工具
+- [ ] T001 创建符合Manifest V3的manifest.json配置文件
+- [ ] T002 初始化项目结构(background/content/popup/options目录)
+- [ ] T003 [P] 配置ESLint和Prettier(遵循Chrome扩展最佳实践)
+- [ ] T004 [P] 配置测试框架(Jest/Mocha)和覆盖率工具
+- [ ] T005 [P] 设置CI/CD流程(测试覆盖率检查60%阈值)
 
 ---
 

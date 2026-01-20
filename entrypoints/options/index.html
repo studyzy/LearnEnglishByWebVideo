@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Subtitle Enhancer - Settings</title>
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>🎓 YouTube Subtitle Enhancer</h1>
+      <p>Settings & Configuration</p>
+    </header>
+    
+    <main>
+      <section class="settings-section">
+        <h2>⚙️ LLM Configuration</h2>
+        <div class="form-group">
+          <label for="llm-provider">LLM Provider:</label>
+          <select id="llm-provider">
+            <option value="deepseek" selected>DeepSeek (Recommended)</option>
+            <option value="openai">OpenAI</option>
+            <option value="claude">Claude</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="api-key">API Key:</label>
+          <div class="api-key-input-container">
+            <input type="password" id="api-key" placeholder="Enter your API key">
+            <button id="toggle-key" type="button">Show</button>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="llm-model">Model (Optional):</label>
+          <input type="text" id="llm-model" placeholder="e.g., deepseek-chat">
+        </div>
+      </section>
+      
+      <section class="settings-section">
+        <h2>📚 English Level</h2>
+        <div class="radio-group">
+          <label>
+            <input type="radio" name="level" value="beginner">
+            Beginner (3000 words)
+          </label>
+          <label>
+            <input type="radio" name="level" value="intermediate" checked>
+            Intermediate (6000 words)
+          </label>
+          <label>
+            <input type="radio" name="level" value="advanced">
+            Advanced (10000+ words)
+          </label>
+        </div>
+      </section>
+      
+      <section class="settings-section">
+        <h2>🎨 Display Settings</h2>
+        <div class="form-group">
+          <label for="font-size">Subtitle Font Size:</label>
+          <input type="number" id="font-size" value="16" min="12" max="32">
+          <span>px</span>
+        </div>
+      </section>
+      
+      <div class="actions">
+        <button id="save-settings" class="primary">Save Settings</button>
+        <button id="reset-settings">Reset to Defaults</button>
+      </div>
+      
+      <div id="status" class="status hidden"></div>
+    </main>
+    
+    <footer>
+      <p>💡 Tip: Get your DeepSeek API key at <a href="https://platform.deepseek.com/" target="_blank">platform.deepseek.com</a></p>
+      <p>Version 0.1.0 | <a href="https://github.com/studyzy/LearnEnglishByWebVideo" target="_blank">GitHub</a></p>
+    </footer>
+  </div>
+  
+  <script type="module" src="./main.ts"></script>
+</body>
+</html>

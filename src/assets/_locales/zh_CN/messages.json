@@ -1,0 +1,236 @@
+{
+  "extensionName": {
+    "message": "YouTube智能字幕增强器",
+    "description": "扩展名称"
+  },
+  "extensionDescription": {
+    "message": "通过AI驱动的上下文翻译增强YouTube字幕，帮助英语学习者",
+    "description": "扩展描述"
+  },
+  "settings_title": {
+    "message": "设置",
+    "description": "设置页面标题"
+  },
+  "settings_english_level": {
+    "message": "英语水平",
+    "description": "英语水平设置标题"
+  },
+  "english_level_beginner": {
+    "message": "初级（3000词）",
+    "description": "初级英语水平选项"
+  },
+  "english_level_intermediate": {
+    "message": "中级（6000词）",
+    "description": "中级英语水平选项"
+  },
+  "english_level_advanced": {
+    "message": "高级（10000词）",
+    "description": "高级英语水平选项"
+  },
+  "settings_llm_provider": {
+    "message": "LLM服务提供商",
+    "description": "LLM提供商设置标题"
+  },
+  "llm_provider_label": {
+    "message": "翻译服务",
+    "description": "LLM提供商选择标签"
+  },
+  "llm_provider_openai": {
+    "message": "OpenAI (GPT-4o-mini)",
+    "description": "OpenAI提供商选项"
+  },
+  "llm_provider_claude": {
+    "message": "Claude (3.5 Haiku)",
+    "description": "Claude提供商选项"
+  },
+  "llm_api_key_label": {
+    "message": "API密钥",
+    "description": "API密钥输入标签"
+  },
+  "llm_api_key_placeholder": {
+    "message": "请输入您的API密钥...",
+    "description": "API密钥输入占位符"
+  },
+  "llm_api_key_help": {
+    "message": "从服务提供商网站获取您的API密钥。您的密钥仅保存在本地，绝不会被分享。",
+    "description": "API密钥帮助文本"
+  },
+  "llm_test_connection": {
+    "message": "测试连接",
+    "description": "测试API连接按钮"
+  },
+  "llm_connection_success": {
+    "message": "连接成功！",
+    "description": "API连接成功消息"
+  },
+  "llm_connection_failed": {
+    "message": "连接失败，请检查您的API密钥。",
+    "description": "API连接失败消息"
+  },
+  "settings_vocabulary": {
+    "message": "词汇管理",
+    "description": "词汇管理设置标题"
+  },
+  "vocabulary_mastered": {
+    "message": "已掌握词汇",
+    "description": "已掌握词汇标签"
+  },
+  "vocabulary_focus": {
+    "message": "重点关注词汇",
+    "description": "重点关注词汇标签"
+  },
+  "vocabulary_search": {
+    "message": "搜索词汇...",
+    "description": "搜索输入占位符"
+  },
+  "vocabulary_add": {
+    "message": "添加词汇",
+    "description": "添加词汇按钮"
+  },
+  "vocabulary_export": {
+    "message": "导出为CSV",
+    "description": "导出按钮文本"
+  },
+  "vocabulary_import": {
+    "message": "从CSV导入",
+    "description": "导入按钮文本"
+  },
+  "vocabulary_import_confirm": {
+    "message": "导入将替换所有现有词汇，是否继续？",
+    "description": "导入确认消息"
+  },
+  "vocabulary_count": {
+    "message": "$COUNT$ 个词汇",
+    "description": "词汇数量显示",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "42"
+      }
+    }
+  },
+  "vocabulary_empty": {
+    "message": "暂无词汇。您标记为已掌握的词汇将显示在这里。",
+    "description": "空词汇列表消息"
+  },
+  "settings_appearance": {
+    "message": "外观",
+    "description": "外观设置标题"
+  },
+  "appearance_font_size": {
+    "message": "字体大小",
+    "description": "字体大小设置标签"
+  },
+  "appearance_subtitle_color": {
+    "message": "字幕颜色",
+    "description": "字幕颜色设置标签"
+  },
+  "appearance_translation_color": {
+    "message": "翻译颜色",
+    "description": "翻译颜色设置标签"
+  },
+  "appearance_background_color": {
+    "message": "背景颜色",
+    "description": "背景颜色设置标签"
+  },
+  "save_button": {
+    "message": "保存",
+    "description": "保存按钮文本"
+  },
+  "cancel_button": {
+    "message": "取消",
+    "description": "取消按钮文本"
+  },
+  "saved_notification": {
+    "message": "设置已成功保存",
+    "description": "设置保存成功通知"
+  },
+  "error_notification": {
+    "message": "错误：$ERROR$",
+    "description": "错误通知模板",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "API密钥无效"
+      }
+    }
+  },
+  "popup_title": {
+    "message": "YouTube智能字幕增强器",
+    "description": "弹窗标题"
+  },
+  "popup_enabled": {
+    "message": "已启用",
+    "description": "扩展已启用状态"
+  },
+  "popup_disabled": {
+    "message": "已禁用",
+    "description": "扩展已禁用状态"
+  },
+  "popup_toggle": {
+    "message": "切换扩展",
+    "description": "切换扩展按钮"
+  },
+  "popup_open_settings": {
+    "message": "打开设置",
+    "description": "打开设置按钮"
+  },
+  "popup_stats_videos": {
+    "message": "观看视频数",
+    "description": "观看视频数统计标签"
+  },
+  "popup_stats_words": {
+    "message": "学习词汇数",
+    "description": "学习词汇数统计标签"
+  },
+  "subtitle_loading": {
+    "message": "正在加载字幕...",
+    "description": "加载字幕消息"
+  },
+  "subtitle_no_captions": {
+    "message": "此视频没有可用的英文字幕",
+    "description": "无字幕可用消息"
+  },
+  "subtitle_auto_generated": {
+    "message": "使用自动生成的字幕（可能不太准确）",
+    "description": "自动生成字幕警告"
+  },
+  "subtitle_processing": {
+    "message": "正在处理字幕... $PROGRESS$%",
+    "description": "处理进度消息",
+    "placeholders": {
+      "progress": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "subtitle_error": {
+    "message": "加载字幕失败，请尝试刷新页面。",
+    "description": "字幕加载错误消息"
+  },
+  "mark_known_tooltip": {
+    "message": "标记为已掌握",
+    "description": "标记为已掌握词汇提示"
+  },
+  "onboarding_welcome": {
+    "message": "欢迎使用YouTube智能字幕增强器！",
+    "description": "新手引导欢迎标题"
+  },
+  "onboarding_step1": {
+    "message": "在设置中配置您的英语水平和LLM API密钥",
+    "description": "新手引导步骤1"
+  },
+  "onboarding_step2": {
+    "message": "观看启用了英文字幕的YouTube视频",
+    "description": "新手引导步骤2"
+  },
+  "onboarding_step3": {
+    "message": "生词将根据上下文自动翻译",
+    "description": "新手引导步骤3"
+  },
+  "onboarding_dismiss": {
+    "message": "明白了！",
+    "description": "关闭新手引导按钮"
+  }
+}

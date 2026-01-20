@@ -1,0 +1,236 @@
+{
+  "extensionName": {
+    "message": "YouTube Subtitle Enhancer",
+    "description": "Extension name"
+  },
+  "extensionDescription": {
+    "message": "Enhance YouTube subtitles with AI-powered contextual translations for English learners",
+    "description": "Extension description"
+  },
+  "settings_title": {
+    "message": "Settings",
+    "description": "Settings page title"
+  },
+  "settings_english_level": {
+    "message": "English Level",
+    "description": "English level section title"
+  },
+  "english_level_beginner": {
+    "message": "Beginner (3000 words)",
+    "description": "Beginner English level option"
+  },
+  "english_level_intermediate": {
+    "message": "Intermediate (6000 words)",
+    "description": "Intermediate English level option"
+  },
+  "english_level_advanced": {
+    "message": "Advanced (10000 words)",
+    "description": "Advanced English level option"
+  },
+  "settings_llm_provider": {
+    "message": "LLM Provider",
+    "description": "LLM provider section title"
+  },
+  "llm_provider_label": {
+    "message": "Translation Service",
+    "description": "LLM provider selection label"
+  },
+  "llm_provider_openai": {
+    "message": "OpenAI (GPT-4o-mini)",
+    "description": "OpenAI provider option"
+  },
+  "llm_provider_claude": {
+    "message": "Claude (3.5 Haiku)",
+    "description": "Claude provider option"
+  },
+  "llm_api_key_label": {
+    "message": "API Key",
+    "description": "API key input label"
+  },
+  "llm_api_key_placeholder": {
+    "message": "Enter your API key...",
+    "description": "API key input placeholder"
+  },
+  "llm_api_key_help": {
+    "message": "Get your API key from the provider's website. Your key is stored locally and never shared.",
+    "description": "API key help text"
+  },
+  "llm_test_connection": {
+    "message": "Test Connection",
+    "description": "Test API connection button"
+  },
+  "llm_connection_success": {
+    "message": "Connection successful!",
+    "description": "API connection success message"
+  },
+  "llm_connection_failed": {
+    "message": "Connection failed. Please check your API key.",
+    "description": "API connection failure message"
+  },
+  "settings_vocabulary": {
+    "message": "Vocabulary Management",
+    "description": "Vocabulary section title"
+  },
+  "vocabulary_mastered": {
+    "message": "Mastered Words",
+    "description": "Mastered words tab"
+  },
+  "vocabulary_focus": {
+    "message": "Focus Words",
+    "description": "Focus words tab"
+  },
+  "vocabulary_search": {
+    "message": "Search words...",
+    "description": "Search input placeholder"
+  },
+  "vocabulary_add": {
+    "message": "Add Word",
+    "description": "Add word button"
+  },
+  "vocabulary_export": {
+    "message": "Export to CSV",
+    "description": "Export button text"
+  },
+  "vocabulary_import": {
+    "message": "Import from CSV",
+    "description": "Import button text"
+  },
+  "vocabulary_import_confirm": {
+    "message": "Import will replace all existing words. Continue?",
+    "description": "Import confirmation message"
+  },
+  "vocabulary_count": {
+    "message": "$COUNT$ words",
+    "description": "Word count display",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "42"
+      }
+    }
+  },
+  "vocabulary_empty": {
+    "message": "No words yet. Words you mark as known will appear here.",
+    "description": "Empty vocabulary message"
+  },
+  "settings_appearance": {
+    "message": "Appearance",
+    "description": "Appearance section title"
+  },
+  "appearance_font_size": {
+    "message": "Font Size",
+    "description": "Font size setting label"
+  },
+  "appearance_subtitle_color": {
+    "message": "Subtitle Color",
+    "description": "Subtitle color setting label"
+  },
+  "appearance_translation_color": {
+    "message": "Translation Color",
+    "description": "Translation color setting label"
+  },
+  "appearance_background_color": {
+    "message": "Background Color",
+    "description": "Background color setting label"
+  },
+  "save_button": {
+    "message": "Save",
+    "description": "Save button text"
+  },
+  "cancel_button": {
+    "message": "Cancel",
+    "description": "Cancel button text"
+  },
+  "saved_notification": {
+    "message": "Settings saved successfully",
+    "description": "Settings saved notification"
+  },
+  "error_notification": {
+    "message": "Error: $ERROR$",
+    "description": "Error notification template",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "API key is invalid"
+      }
+    }
+  },
+  "popup_title": {
+    "message": "YouTube Subtitle Enhancer",
+    "description": "Popup title"
+  },
+  "popup_enabled": {
+    "message": "Enabled",
+    "description": "Extension enabled status"
+  },
+  "popup_disabled": {
+    "message": "Disabled",
+    "description": "Extension disabled status"
+  },
+  "popup_toggle": {
+    "message": "Toggle Extension",
+    "description": "Toggle extension button"
+  },
+  "popup_open_settings": {
+    "message": "Open Settings",
+    "description": "Open settings button"
+  },
+  "popup_stats_videos": {
+    "message": "Videos Watched",
+    "description": "Videos watched stat label"
+  },
+  "popup_stats_words": {
+    "message": "Words Learned",
+    "description": "Words learned stat label"
+  },
+  "subtitle_loading": {
+    "message": "Loading subtitles...",
+    "description": "Loading subtitles message"
+  },
+  "subtitle_no_captions": {
+    "message": "No English subtitles available for this video",
+    "description": "No captions available message"
+  },
+  "subtitle_auto_generated": {
+    "message": "Using auto-generated subtitles (may be less accurate)",
+    "description": "Auto-generated subtitles warning"
+  },
+  "subtitle_processing": {
+    "message": "Processing subtitles... $PROGRESS$%",
+    "description": "Processing progress message",
+    "placeholders": {
+      "progress": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "subtitle_error": {
+    "message": "Failed to load subtitles. Please try refreshing the page.",
+    "description": "Subtitle loading error message"
+  },
+  "mark_known_tooltip": {
+    "message": "Mark as known",
+    "description": "Mark word as known tooltip"
+  },
+  "onboarding_welcome": {
+    "message": "Welcome to YouTube Subtitle Enhancer!",
+    "description": "Onboarding welcome title"
+  },
+  "onboarding_step1": {
+    "message": "Configure your English level and LLM API key in Settings",
+    "description": "Onboarding step 1"
+  },
+  "onboarding_step2": {
+    "message": "Watch YouTube videos with English subtitles enabled",
+    "description": "Onboarding step 2"
+  },
+  "onboarding_step3": {
+    "message": "Unknown words will be automatically translated based on context",
+    "description": "Onboarding step 3"
+  },
+  "onboarding_dismiss": {
+    "message": "Got it!",
+    "description": "Dismiss onboarding button"
+  }
+}

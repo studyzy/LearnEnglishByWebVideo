@@ -1,0 +1,578 @@
+/**
+ * Storage Manager
+ * 
+ * This module provides a high-level abstraction layer for chrome.storage.local operations.
+ * It handles:
+ * - User profile CRUD operations
+ * - Video session caching
+ * - Translation caching
+ * - Storage quota monitoring
+ * - Cache cleanup
+ * 
+ * @author YouTube Subtitle Enhancer Team
+ * @since 0.1.0
+ */
+
+import type {
+  UserProfile,
+  VideoSession,
+  TranslationCacheEntry,
+  WordEntry,
+} from '../types/index';
+import {
+  defaultUserProfile,
+  StorageKeys,
+  CACHE_EXPIRY_MS,
+  STORAGE_QUOTA_BYTES,
+  STORAGE_WARNING_THRESHOLD,
+} from '../types/index';
+import { ENV_CONFIG, HAS_API_KEY } from '../config/env';
+
+// Ensure browser global is available (polyfill for Chrome)
+declare const chrome: any;
+declare const browser: any;
+const storageAPI = typeof browser !== 'undefined' ? browser : chrome;
+
+// ============================================================================
+// User Profile Operations
+// ============================================================================
+
+/**
+ * Get user profile from storage
+ * Returns default profile if not found
+ * 
+ * @returns Promise resolving to UserProfile
+ */
+export async function getUserProfile(): Promise<UserProfile> {
+  try {
+    const result = await storageAPI.storage.local.get(StorageKeys.USER_PROFILE);
+    const profile = result[StorageKeys.USER_PROFILE];
+
+    if (!profile) {
+      // Initialize with default profile on first run
+      // Use environment configuration if available
+      const initialProfile = {
+        ...defaultUserProfile,
+        ...(HAS_API_KEY && {
+          llmProvider: ENV_CONFIG.LLM_PROVIDER as 'openai' | 'claude' | 'deepseek',
+          llmApiKey: ENV_CONFIG.LLM_API_KEY,
+          llmModel: ENV_CONFIG.LLM_MODEL,
+        }),
+      };
+      
+      await updateUserProfile(initialProfile);
+      return initialProfile;
+    }
+
+    return profile as UserProfile;
+  } catch (error) {
+    console.error('Failed to get user profile:', error);
+    return defaultUserProfile;
+  }
+}
+
+/**
+ * Update user profile with partial updates
+ * Automatically updates lastUsedAt timestamp
+ * 
+ * @param updates - Partial user profile updates
+ * @returns Promise resolving when update completes
+ */
+export async function updateUserProfile(updates: Partial<UserProfile>): Promise<void> {
+  try {
+    const current = await getUserProfile();
+    const updated: UserProfile = {
+      ...current,
+      ...updates,
+      lastUsedAt: Date.now(),
+    };
+
+    await storageAPI.storage.local.set({
+      [StorageKeys.USER_PROFILE]: updated,
+    });
+
+    console.log('User profile updated:', Object.keys(updates));
+  } catch (error) {
+    console.error('Failed to update user profile:', error);
+    throw error;
+  }
+}
+
+/**
+ * Add word to mastered words list
+ * Avoids duplicates by checking existing words
+ * 
+ * @param word - Word to add
+ * @param lemma - Optional lemma form
+ * @param source - Source of addition (manual or interactive)
+ * @returns Promise resolving when word is added
+ */
+export async function addMasteredWord(
+  word: string,
+  lemma?: string,
+  source: 'manual' | 'interactive' = 'manual',
+): Promise<void> {
+  const profile = await getUserProfile();
+  const normalizedWord = word.toLowerCase();
+
+  // Check if word already exists
+  const exists = profile.masteredWords.some((entry) => entry.word === normalizedWord);
+  if (exists) {
+    console.log(`Word "${normalizedWord}" already in mastered list`);
+    return;
+  }
+
+  const entry: WordEntry = {
+    word: normalizedWord,
+    lemma: lemma?.toLowerCase(),
+    addedTime: Date.now(),
+    source,
+  };
+
+  await updateUserProfile({
+    masteredWords: [...profile.masteredWords, entry],
+    totalWordsLearned: (profile.totalWordsLearned || 0) + 1,
+  });
+}
+
+/**
+ * Remove word from mastered words list
+ * 
+ * @param word - Word to remove
+ * @returns Promise resolving when word is removed
+ */
+export async function removeMasteredWord(word: string): Promise<void> {
+  const profile = await getUserProfile();
+  const normalizedWord = word.toLowerCase();
+
+  const filtered = profile.masteredWords.filter((entry) => entry.word !== normalizedWord);
+
+  await updateUserProfile({
+    masteredWords: filtered,
+  });
+}
+
+/**
+ * Add word to focus words list
+ * Avoids duplicates by checking existing words
+ * 
+ * @param word - Word to add
+ * @param lemma - Optional lemma form
+ * @param _context - Optional context where word was encountered (currently unused, reserved for future)
+ * @returns Promise resolving when word is added
+ */
+export async function addFocusWord(
+  word: string,
+  lemma?: string,
+  _context?: string,
+): Promise<void> {
+  const profile = await getUserProfile();
+  const normalizedWord = word.toLowerCase();
+
+  // Check if word already exists
+  const exists = profile.focusWords.some((entry) => entry.word === normalizedWord);
+  if (exists) {
+    console.log(`Word "${normalizedWord}" already in focus list`);
+    return;
+  }
+
+  const entry: WordEntry = {
+    word: normalizedWord,
+    lemma: lemma?.toLowerCase(),
+    addedTime: Date.now(),
+    source: 'interactive',
+  };
+
+  await updateUserProfile({
+    focusWords: [...profile.focusWords, entry],
+  });
+
+  console.log(`Added "${normalizedWord}" to focus words`);
+}
+
+/**
+ * Remove word from focus words list
+ * 
+ * @param word - Word to remove
+ * @returns Promise resolving when word is removed
+ */
+export async function removeFocusWord(word: string): Promise<void> {
+  const profile = await getUserProfile();
+  const normalizedWord = word.toLowerCase();
+
+  const filtered = profile.focusWords.filter((entry) => entry.word !== normalizedWord);
+
+  await updateUserProfile({
+    focusWords: filtered,
+  });
+
+  console.log(`Removed "${normalizedWord}" from focus words`);
+}
+
+/**
+ * Check if a word is in mastered or focus list
+ * Also checks lemma forms for variation matching
+ * 
+ * @param word - Word to check
+ * @param lemma - Optional lemma form
+ * @returns Object indicating if word is mastered or focused
+ */
+export async function checkWordStatus(
+  word: string,
+  lemma?: string,
+): Promise<{ isMastered: boolean; isFocused: boolean }> {
+  const profile = await getUserProfile();
+  const normalizedWord = word.toLowerCase();
+  const normalizedLemma = lemma?.toLowerCase();
+
+  const isMastered = profile.masteredWords.some(
+    (entry) =>
+      entry.word === normalizedWord ||
+      (normalizedLemma && entry.lemma === normalizedLemma) ||
+      (entry.lemma && entry.lemma === normalizedWord),
+  );
+
+  const isFocused = profile.focusWords.some(
+    (entry) =>
+      entry.word === normalizedWord ||
+      (normalizedLemma && entry.lemma === normalizedLemma) ||
+      (entry.lemma && entry.lemma === normalizedWord),
+  );
+
+  return { isMastered, isFocused };
+}
+
+// ============================================================================
+// Video Session Operations
+// ============================================================================
+
+/**
+ * Cache video session to storage
+ * Sets expiry to 7 days from now
+ * 
+ * @param session - Video session to cache
+ * @returns Promise resolving when cache completes
+ */
+export async function cacheVideoSession(session: VideoSession): Promise<void> {
+  try {
+    const cacheKey = `${StorageKeys.VIDEO_CACHE_PREFIX}${session.videoId}`;
+    const cacheData: VideoSession = {
+      ...session,
+      cacheExpiry: Date.now() + CACHE_EXPIRY_MS,
+    };
+
+    await browser.storage.local.set({
+      [cacheKey]: cacheData,
+    });
+
+    console.log(`Video session cached: ${session.videoId}`);
+
+    // Check storage quota after caching large data
+    await checkStorageQuota();
+  } catch (error) {
+    console.error('Failed to cache video session:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get cached video session from storage
+ * Returns null if not found or expired
+ * 
+ * @param videoId - YouTube video ID
+ * @returns Promise resolving to VideoSession or null
+ */
+export async function getCachedVideoSession(videoId: string): Promise<VideoSession | null> {
+  try {
+    const cacheKey = `${StorageKeys.VIDEO_CACHE_PREFIX}${videoId}`;
+    const result = await browser.storage.local.get(cacheKey);
+    const cached = result[cacheKey] as VideoSession | undefined;
+
+    if (!cached) {
+      return null;
+    }
+
+    // Check expiry
+    if (Date.now() > cached.cacheExpiry) {
+      await browser.storage.local.remove(cacheKey);
+      console.log(`Video cache expired: ${videoId}`);
+      return null;
+    }
+
+    console.log(`Video cache hit: ${videoId}`);
+    return cached;
+  } catch (error) {
+    console.error('Failed to get cached video session:', error);
+    return null;
+  }
+}
+
+// ============================================================================
+// Translation Cache Operations
+// ============================================================================
+
+/**
+ * Generate context hash for translation cache key
+ * Uses word + first 50 characters of context
+ * 
+ * @param word - Word being translated
+ * @param context - Context snippet
+ * @returns Hash string
+ */
+function generateContextHash(word: string, context: string): string {
+  const snippet = context.slice(0, 50);
+  return `${word}_${simpleHash(snippet)}`;
+}
+
+/**
+ * Simple hash function for context
+ * Generates 32-bit integer hash converted to base36
+ * 
+ * @param str - String to hash
+ * @returns Hash string in base36
+ */
+function simpleHash(str: string): string {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return Math.abs(hash).toString(36);
+}
+
+/**
+ * Cache translation result
+ * 
+ * @param word - Word that was translated
+ * @param context - Context snippet
+ * @param translation - LLM translation result
+ * @param provider - LLM provider used
+ * @param model - LLM model used
+ * @returns Promise resolving when cache completes
+ */
+export async function cacheTranslation(
+  word: string,
+  context: string,
+  translation: string,
+  provider: 'openai' | 'claude',
+  model: string,
+): Promise<void> {
+  try {
+    const contextHash = generateContextHash(word, context);
+    const cacheKey = `${StorageKeys.TRANSLATION_CACHE_PREFIX}${contextHash}`;
+
+    const entry: TranslationCacheEntry = {
+      word: word.toLowerCase(),
+      context: context.slice(0, 50),
+      contextHash,
+      translation,
+      timestamp: Date.now(),
+      expiryTime: Date.now() + CACHE_EXPIRY_MS,
+      llmProvider: provider,
+      llmModel: model,
+    };
+
+    await browser.storage.local.set({
+      [cacheKey]: entry,
+    });
+
+    console.log(`Translation cached: ${word}`);
+  } catch (error) {
+    console.error('Failed to cache translation:', error);
+    // Don't throw - cache failures shouldn't break translation
+  }
+}
+
+/**
+ * Get translation from cache
+ * Returns null if not found or expired
+ * 
+ * @param word - Word to translate
+ * @param context - Context snippet
+ * @returns Promise resolving to translation string or null
+ */
+export async function getTranslationCache(word: string, context: string): Promise<string | null> {
+  try {
+    const contextHash = generateContextHash(word, context);
+    const cacheKey = `${StorageKeys.TRANSLATION_CACHE_PREFIX}${contextHash}`;
+
+    const result = await browser.storage.local.get(cacheKey);
+    const entry = result[cacheKey] as TranslationCacheEntry | undefined;
+
+    if (!entry) {
+      return null;
+    }
+
+    // Check expiry
+    if (Date.now() > entry.expiryTime) {
+      await browser.storage.local.remove(cacheKey);
+      console.log(`Translation cache expired: ${word}`);
+      return null;
+    }
+
+    console.log(`Translation cache hit: ${word}`);
+    return entry.translation;
+  } catch (error) {
+    console.error('Failed to get translation cache:', error);
+    return null;
+  }
+}
+
+// ============================================================================
+// Storage Management
+// ============================================================================
+
+/**
+ * Storage usage estimate
+ */
+interface StorageEstimate {
+  /** User profile size in bytes */
+  userProfile: number;
+  /** Total video cache size in bytes */
+  videoCaches: number;
+  /** Total translation cache size in bytes */
+  translationCaches: number;
+  /** Total storage used in bytes */
+  total: number;
+}
+
+/**
+ * Get current storage usage breakdown
+ * 
+ * @returns Promise resolving to storage estimate
+ */
+export async function getStorageUsage(): Promise<StorageEstimate> {
+  try {
+    const allData = await browser.storage.local.get(null);
+
+    const estimate: StorageEstimate = {
+      userProfile: 0,
+      videoCaches: 0,
+      translationCaches: 0,
+      total: 0,
+    };
+
+    for (const [key, value] of Object.entries(allData)) {
+      const size = JSON.stringify(value).length;
+
+      if (key === StorageKeys.USER_PROFILE) {
+        estimate.userProfile = size;
+      } else if (key.startsWith(StorageKeys.VIDEO_CACHE_PREFIX)) {
+        estimate.videoCaches += size;
+      } else if (key.startsWith(StorageKeys.TRANSLATION_CACHE_PREFIX)) {
+        estimate.translationCaches += size;
+      }
+    }
+
+    estimate.total = estimate.userProfile + estimate.videoCaches + estimate.translationCaches;
+
+    return estimate;
+  } catch (error) {
+    console.error('Failed to get storage usage:', error);
+    return {
+      userProfile: 0,
+      videoCaches: 0,
+      translationCaches: 0,
+      total: 0,
+    };
+  }
+}
+
+/**
+ * Check storage quota and trigger cleanup if needed
+ * 
+ * @returns Promise resolving to quota status
+ */
+export async function checkStorageQuota(): Promise<{
+  usage: number;
+  quota: number;
+  isNearLimit: boolean;
+}> {
+  const usage = await getStorageUsage();
+  const isNearLimit = usage.total > STORAGE_QUOTA_BYTES * STORAGE_WARNING_THRESHOLD;
+
+  if (isNearLimit) {
+    console.warn(
+      `Storage usage (${(usage.total / 1024 / 1024).toFixed(2)} MB) is approaching limit`,
+    );
+    await cleanupOldestCaches();
+  }
+
+  return {
+    usage: usage.total,
+    quota: STORAGE_QUOTA_BYTES,
+    isNearLimit,
+  };
+}
+
+/**
+ * Clean up oldest 30% of caches when approaching quota
+ * 
+ * @returns Promise resolving when cleanup completes
+ */
+export async function cleanupOldestCaches(): Promise<void> {
+  try {
+    const allData = await browser.storage.local.get(null);
+    const caches: Array<{ key: string; timestamp: number }> = [];
+
+    // Collect all caches with timestamps
+    for (const [key, value] of Object.entries(allData)) {
+      if (key.startsWith(StorageKeys.VIDEO_CACHE_PREFIX)) {
+        const session = value as VideoSession;
+        caches.push({ key, timestamp: session.lastProcessedTime });
+      } else if (key.startsWith(StorageKeys.TRANSLATION_CACHE_PREFIX)) {
+        const entry = value as TranslationCacheEntry;
+        caches.push({ key, timestamp: entry.timestamp });
+      }
+    }
+
+    // Sort by timestamp (oldest first)
+    caches.sort((a, b) => a.timestamp - b.timestamp);
+
+    // Delete oldest 30%
+    const toDelete = caches.slice(0, Math.floor(caches.length * 0.3));
+    const keysToRemove = toDelete.map((c) => c.key);
+
+    if (keysToRemove.length > 0) {
+      await browser.storage.local.remove(keysToRemove);
+      console.log(`Cleaned up ${keysToRemove.length} oldest cache entries`);
+    }
+  } catch (error) {
+    console.error('Failed to cleanup oldest caches:', error);
+  }
+}
+
+/**
+ * Clean up all expired caches
+ * Should be called periodically (e.g., daily or on startup)
+ * 
+ * @returns Promise resolving when cleanup completes
+ */
+export async function cleanupExpiredCaches(): Promise<void> {
+  try {
+    const allData = await browser.storage.local.get(null);
+    const keysToRemove: string[] = [];
+
+    for (const [key, value] of Object.entries(allData)) {
+      if (key.startsWith(StorageKeys.TRANSLATION_CACHE_PREFIX)) {
+        const entry = value as TranslationCacheEntry;
+        if (Date.now() > entry.expiryTime) {
+          keysToRemove.push(key);
+        }
+      } else if (key.startsWith(StorageKeys.VIDEO_CACHE_PREFIX)) {
+        const session = value as VideoSession;
+        if (Date.now() > session.cacheExpiry) {
+          keysToRemove.push(key);
+        }
+      }
+    }
+
+    if (keysToRemove.length > 0) {
+      await browser.storage.local.remove(keysToRemove);
+      console.log(`Cleaned up ${keysToRemove.length} expired cache entries`);
+    }
+  } catch (error) {
+    console.error('Failed to cleanup expired caches:', error);
+  }
+}

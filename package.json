@@ -1,0 +1,47 @@
+{
+  "name": "youtube-subtitle-enhancer",
+  "version": "0.1.0",
+  "description": "A Chrome extension that enhances YouTube subtitles with Chinese translations for English learners",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "inject-env": "node scripts/inject-env.cjs",
+    "predev": "npm run inject-env",
+    "prebuild": "npm run inject-env",
+    "dev": "wxt",
+    "dev:firefox": "wxt -b firefox",
+    "build": "wxt build",
+    "build:firefox": "wxt build -b firefox",
+    "zip": "wxt zip",
+    "zip:firefox": "wxt zip -b firefox",
+    "compile": "tsc --noEmit",
+    "postinstall": "wxt prepare",
+    "test": "vitest",
+    "test:unit": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "lint": "eslint src --ext .ts,.tsx",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\""
+  },
+  "dependencies": {
+    "wink-lemmatizer": "^3.0.1",
+    "papaparse": "^5.4.1"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.258",
+    "@types/papaparse": "^5.3.14",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0",
+    "@playwright/test": "^1.41.0",
+    "@vitest/ui": "^1.2.1",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "jsdom": "^23.2.0",
+    "prettier": "^3.2.4",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.11",
+    "vitest": "^1.2.1",
+    "vitest-chrome": "^0.1.0",
+    "wxt": "^0.20.13"
+  }
+}
