@@ -84,15 +84,16 @@ export function createSubtitleOverlay(): HTMLDivElement {
     position: 'absolute',
     left: '0',
     right: '0',
-    bottom: '60px', // Above YouTube's native controls
+    bottom: '80px', // Raised slightly
     pointerEvents: 'none',
-    zIndex: '9999',
+    zIndex: '2147483647', // Max z-index
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'flex-end',
     padding: '0 20px 20px 20px',
     fontFamily: 'YouTube Sans, Roboto, Arial, sans-serif',
+    border: '1px solid transparent', // Change to '1px solid red' for debug if needed
   });
   
   overlayContainer = container;
@@ -118,17 +119,24 @@ export function injectOverlayIntoPlayer(overlay: HTMLDivElement): boolean {
   try {
     // Find the video player container
     const playerContainer = document.querySelector('#movie_player') || 
-                           document.querySelector('.html5-video-player');
+                           document.querySelector('.html5-video-player') ||
+                           document.querySelector('.ytd-player');
     
     if (!playerContainer) {
-      console.error('Player container not found');
+      console.error('Player container not found. Tried #movie_player, .html5-video-player, .ytd-player');
       return false;
     }
+    
+    console.log('Found player container:', playerContainer);
     
     // Append overlay to player container
     playerContainer.appendChild(overlay);
     
-    console.log('Overlay injected into player');
+    console.log('Overlay injected into player. Overlay dimensions:', {
+      offsetWidth: overlay.offsetWidth,
+      offsetHeight: overlay.offsetHeight,
+      zIndex: overlay.style.zIndex
+    });
     return true;
   } catch (error) {
     console.error('Failed to inject overlay:', error);
@@ -207,11 +215,8 @@ export function renderSubtitle(segment: SubtitleSegment): void {
   overlayContainer.appendChild(subtitleElement);
   currentSubtitleElement = subtitleElement;
   
-  // Fade in animation
-  subtitleElement.style.opacity = '0';
-  requestAnimationFrame(() => {
-    subtitleElement.style.opacity = '1';
-  });
+  // Set opacity directly (skipping animation for debug)
+  subtitleElement.style.opacity = '1';
 }
 
 /**
@@ -285,10 +290,13 @@ function syncSubtitleWithVideo(): void {
   }
   
   const currentTime = videoElement.currentTime;
-  const newIndex = findSubtitleIndex(currentTime);
   
   // Update subtitle if changed
+  // Add a small tolerance (e.g. 0.1s) to account for seek/sync jitter
+  const newIndex = findSubtitleIndex(currentTime + 0.1);
+
   if (newIndex !== currentSubtitleIndex) {
+    console.log(`Subtitle index changed: ${currentSubtitleIndex} -> ${newIndex} (time: ${currentTime.toFixed(2)})`);
     currentSubtitleIndex = newIndex;
     
     if (newIndex >= 0 && subtitleSegments[newIndex]) {

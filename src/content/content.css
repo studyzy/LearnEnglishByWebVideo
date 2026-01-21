@@ -42,60 +42,25 @@
 /* ===== Unknown Words with Translations ===== */
 .yse-unknown-word {
   position: relative;
-  color: #ffeb3b; /* Yellow color for unknown words */
+  color: #00ff00; /* Green color for unknown words */
   font-weight: 500;
   cursor: help;
-  border-bottom: 2px dotted #ffeb3b;
   padding: 0 2px;
   transition: all 0.2s ease;
 }
 
 .yse-unknown-word:hover {
-  color: #ffc107;
-  border-bottom-color: #ffc107;
-  background-color: rgba(255, 235, 59, 0.1);
+  color: #00e600;
+  background-color: rgba(0, 255, 0, 0.1);
 }
 
-/* Translation Tooltip */
-.yse-unknown-word::after {
-  content: attr(data-translation);
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: rgba(0, 0, 0, 0.95);
-  color: #ffeb3b;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 14px;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-  margin-bottom: 8px;
-  z-index: 10000;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-}
-
-.yse-unknown-word::before {
-  content: '';
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 6px solid transparent;
-  border-top-color: rgba(0, 0, 0, 0.95);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease;
-  margin-bottom: 2px;
-  z-index: 10000;
-}
-
-.yse-unknown-word:hover::after,
-.yse-unknown-word:hover::before {
-  opacity: 1;
-  transform: translateX(-50%) translateY(-2px);
+.yse-translation {
+  font-size: 0.75em;
+  color: #00ff00;
+  margin-left: 2px;
+  vertical-align: super;
+  font-weight: normal;
+  opacity: 0.9;
 }
 
 /* ===== Original Subtitle (Optional) ===== */
@@ -191,7 +156,7 @@
   width: 16px;
   height: 16px;
   border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: #ffeb3b;
+  border-top-color: #00ff00;
   border-radius: 50%;
   animation: yse-spin 0.8s linear infinite;
   margin-left: 8px;
@@ -246,13 +211,6 @@
 /* ===== Dark Theme Support ===== */
 @media (prefers-color-scheme: dark) {
   /* Already dark by default */
-}
-
-/* ===== Test Modes ===== */
-.yse-test-uppercase {
-  text-transform: uppercase;
-  color: #00ff00; /* Bright green for test visibility */
-  font-weight: bold;
 }
 
 /* ===== Hide YouTube Native Subtitles ===== */

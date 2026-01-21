@@ -64,6 +64,37 @@
           <span>px</span>
         </div>
       </section>
+
+      <section class="settings-section">
+        <h2>📖 Vocabulary Management</h2>
+        <div id="vocabulary-manager">
+          <div class="vocab-controls">
+            <div class="search-box">
+              <input type="text" id="vocab-search" placeholder="Search words...">
+            </div>
+            <div class="add-box">
+              <input type="text" id="vocab-add" placeholder="Add new word...">
+              <button id="vocab-add-btn" class="secondary">Add</button>
+            </div>
+            <div class="csv-actions">
+              <button id="vocab-export" title="Export to CSV">📤 Export</button>
+              <button id="vocab-import-trigger" title="Import from CSV">📥 Import</button>
+              <input type="file" id="vocab-import-file" accept=".csv" style="display: none;">
+            </div>
+          </div>
+          
+          <div class="vocab-lists">
+            <div class="vocab-list-container">
+              <h3>Mastered Words (<span id="mastered-count">0</span>)</h3>
+              <ul id="mastered-list" class="vocab-list"></ul>
+            </div>
+            <div class="vocab-list-container">
+              <h3>Focus Words (<span id="focus-count">0</span>)</h3>
+              <ul id="focus-list" class="vocab-list"></ul>
+            </div>
+          </div>
+        </div>
+      </section>
       
       <div class="actions">
         <button id="save-settings" class="primary">Save Settings</button>

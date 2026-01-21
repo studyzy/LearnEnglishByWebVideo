@@ -23,7 +23,7 @@ export interface WordEntry {
   /** Timestamp when word was added (milliseconds) */
   addedTime: number;
   /** Source of the word addition */
-  source?: 'manual' | 'interactive';
+  source?: 'manual' | 'interactive' | 'level';
 }
 
 /**
@@ -49,6 +49,9 @@ export interface UserProfile {
   /** Words the user wants to focus on learning */
   focusWords: WordEntry[];
 
+  /** Words from level-based dictionary that the user doesn't want to see in mastered list */
+  ignoredLevelWords?: string[];
+  
   // UI preferences
   /** Subtitle font size in pixels (default: 16) */
   subtitleFontSize: number;
@@ -420,7 +423,7 @@ export const defaultUserProfile: UserProfile = {
   subtitleFontSize: 16,
   subtitleFontColor: '#ffffff',
   subtitleBackgroundColor: 'rgba(0,0,0,0.8)',
-  translationColor: '#ffeb3b',
+  translationColor: '#00ff00',
   isEnabled: true,
   showOnboardingGuide: true,
   createdAt: Date.now(),

@@ -216,16 +216,16 @@
 
 ### 词汇表管理UI
 
-- [ ] T054 [US3] 实现词汇管理器组件 `src/options/components/vocabulary-manager.ts` (显示已掌握/重点关注词汇, 添加/删除/搜索功能)
-- [ ] T055 [P] [US3] 实现词汇管理器样式 `src/options/options.css` (列表样式, 搜索框, 操作按钮)
-- [ ] T056 [US3] 集成词汇管理器到Options页面 `src/options/options.html` 和 `src/options/options.ts`
+- [X] T054 [US3] 实现词汇管理器组件 `src/options/components/vocabulary-manager.ts` (显示已掌握/重点关注词汇, 添加/删除/搜索功能)
+- [X] T055 [P] [US3] 实现词汇管理器样式 `src/options/options.css` (列表样式, 搜索框, 操作按钮)
+- [X] T056 [US3] 集成词汇管理器到Options页面 `src/options/options.html` 和 `src/options/options.ts`
 
 ### CSV导入导出
 
-- [ ] T057 [P] [US3] 实现CSV处理器 `src/options/components/csv-handler.ts` (CSVHandler类, exportVocabulary, importVocabulary, validateAndTransform, 集成PapaParse)
-- [ ] T058 [P] [US3] 实现CSV处理器测试 `tests/unit/csv-handler.test.ts` (测试导出格式, 导入验证, UTF-8编码)
-- [ ] T059 [US3] 实现导出功能 `src/options/options.ts` (导出按钮点击→生成CSV→触发下载)
-- [ ] T060 [US3] 实现导入功能 `src/options/options.ts` (文件选择→解析CSV→显示确认对话框→覆盖存储)
+- [X] T057 [P] [US3] 实现CSV处理器 `src/options/components/csv-handler.ts` (CSVHandler类, exportVocabulary, importVocabulary, validateAndTransform, 集成PapaParse)
+- [X] T058 [P] [US3] 实现CSV处理器测试 `tests/unit/csv-handler.test.ts` (测试导出格式, 导入验证, UTF-8编码)
+- [X] T059 [US3] 实现导出功能 `src/options/options.ts` (导出按钮点击→生成CSV→触发下载)
+- [X] T060 [US3] 实现导入功能 `src/options/options.ts` (文件选择→解析CSV→显示确认对话框→覆盖存储)
 
 ### 集成测试
 

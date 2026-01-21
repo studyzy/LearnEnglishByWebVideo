@@ -83,6 +83,12 @@ export function isUnknownWord(
     return false; // User knows this word
   }
 
+  // 1.1 Check if it's a "deleted" level word
+  const isIgnored = profile.ignoredLevelWords?.some(w => w.toLowerCase() === normalizedWord);
+  if (isIgnored) {
+    return true; // User explicitly unmarked this as known
+  }
+
   // 2. Check if word is in focus list (treat as known for display purposes)
   const isFocused = profile.focusWords.some(
     (entry) =>

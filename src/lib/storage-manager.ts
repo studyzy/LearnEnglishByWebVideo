@@ -29,9 +29,11 @@ import {
 import { ENV_CONFIG, HAS_API_KEY } from '../config/env';
 
 // Ensure browser global is available (polyfill for Chrome)
-// Ensure browser global is available (polyfill for Chrome)
-declare const browser: any;
-const storageAPI = browser;
+const storageAPI = typeof browser !== 'undefined' ? browser : (typeof chrome !== 'undefined' ? chrome : null);
+
+if (!storageAPI) {
+  console.warn('Neither browser nor chrome API found. Storage operations will fail.');
+}
 
 // ============================================================================
 // User Profile Operations
@@ -136,14 +138,22 @@ export async function addMasteredWord(
     source,
   };
 
-  await updateUserProfile({
+  const updates: Partial<UserProfile> = {
     masteredWords: [...profile.masteredWords, entry],
     totalWordsLearned: (profile.totalWordsLearned || 0) + 1,
-  });
+  };
+
+  // Remove from ignored level words if present
+  if (profile.ignoredLevelWords?.includes(normalizedWord)) {
+    updates.ignoredLevelWords = profile.ignoredLevelWords.filter(w => w !== normalizedWord);
+  }
+
+  await updateUserProfile(updates);
 }
 
 /**
  * Remove word from mastered words list
+ * Also handles level-based words by adding to ignoredLevelWords
  * 
  * @param word - Word to remove
  * @returns Promise resolving when word is removed
@@ -153,10 +163,21 @@ export async function removeMasteredWord(word: string): Promise<void> {
   const normalizedWord = word.toLowerCase();
 
   const filtered = profile.masteredWords.filter((entry) => entry.word !== normalizedWord);
-
-  await updateUserProfile({
+  
+  // Check if it's a level word
+  const updates: Partial<UserProfile> = {
     masteredWords: filtered,
-  });
+  };
+
+  // If it wasn't in personal masteredWords, it might be a level word
+  if (filtered.length === profile.masteredWords.length) {
+    const ignored = profile.ignoredLevelWords || [];
+    if (!ignored.includes(normalizedWord)) {
+      updates.ignoredLevelWords = [...ignored, normalizedWord];
+    }
+  }
+
+  await updateUserProfile(updates);
 }
 
 /**
@@ -214,6 +235,39 @@ export async function removeFocusWord(word: string): Promise<void> {
   });
 
   console.log(`Removed "${normalizedWord}" from focus words`);
+}
+
+/**
+ * Move word from focus list to mastered list
+ * 
+ * @param word - Word to move
+ * @returns Promise resolving when move completes
+ */
+export async function moveFocusToMastered(word: string): Promise<void> {
+  const profile = await getUserProfile();
+  const normalizedWord = word.toLowerCase();
+  
+  const entry = profile.focusWords.find(e => e.word === normalizedWord);
+  const lemma = entry?.lemma;
+  
+  await addMasteredWord(normalizedWord, lemma, 'interactive');
+  await removeFocusWord(normalizedWord);
+}
+
+/**
+ * Move word from mastered list to focus list
+ * 
+ * @param word - Word to move
+ * @returns Promise resolving when move completes
+ */
+export async function moveMasteredToFocus(word: string): Promise<void> {
+  const normalizedWord = word.toLowerCase();
+  
+  // Add to focus first
+  await addFocusWord(normalizedWord);
+  
+  // Then remove from mastered (this handles both personal and level words)
+  await removeMasteredWord(normalizedWord);
 }
 
 /**

@@ -41,11 +41,28 @@ export function parseJSON3Format(json3Data: string): SubtitleSegment[] {
     
     const segments: SubtitleSegment[] = [];
     
-    for (const event of parsed.events) {
+    for (let i = 0; i < parsed.events.length; i++) {
+      const event = parsed.events[i];
       if (!event.segs || event.segs.length === 0) continue;
       
       const startTime = (event.tStartMs ?? 0) / 1000;
-      const duration = (event.dDurationMs ?? 0) / 1000;
+      let duration = (event.dDurationMs ?? 0) / 1000;
+      
+      // Optimization: If duration is very short but there's a next event,
+      // extend duration to almost the start of the next event to prevent flickering.
+      // YouTube's dDurationMs can sometimes be inaccurate or represent only the 
+      // minimal "active" time of the word highlight rather than the whole sentence.
+      if (i < parsed.events.length - 1) {
+        const nextEvent = parsed.events[i + 1];
+        const nextStart = (nextEvent.tStartMs ?? 0) / 1000;
+        const timeToNext = nextStart - startTime;
+        
+        // If the gap is reasonable (e.g. < 5s), extend duration
+        if (timeToNext > duration && timeToNext < 5) {
+          duration = timeToNext;
+        }
+      }
+      
       const endTime = startTime + duration;
       
       const originalText = event.segs

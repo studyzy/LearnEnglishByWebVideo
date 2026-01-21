@@ -5,8 +5,10 @@
  */
 
 import './style.css';
+import '../../src/options/options.css';
 import { getUserProfile, updateUserProfile } from '../../src/lib/storage-manager';
 import type { UserProfile } from '../../src/types/index';
+import { VocabularyManager } from '../../src/options/components/vocabulary-manager';
 
 // Ensure browser global is available (polyfill for Chrome)
 if (typeof window !== 'undefined' && typeof (window as any).browser === 'undefined') {
@@ -23,6 +25,9 @@ let fontSizeInput: HTMLInputElement;
 let saveBtn: HTMLButtonElement;
 let resetBtn: HTMLButtonElement;
 let statusDiv: HTMLDivElement;
+
+// Components
+let vocabManager: VocabularyManager;
 
 /**
  * Initialize the options page
@@ -69,6 +74,10 @@ async function init(): Promise<void> {
   
   // Setup event listeners
   setupEventListeners();
+  
+  // Initialize Vocabulary Manager
+  vocabManager = new VocabularyManager();
+  await vocabManager.init();
   
   console.log('=== Options page initialized successfully ===');
 }
@@ -144,6 +153,11 @@ async function saveSettings(): Promise<void> {
     // Save
     showStatus('⏳ Saving settings...', 'info', true);
     await updateUserProfile(updates);
+    
+    // Refresh Vocabulary Manager to reflect potential level changes
+    if (vocabManager) {
+      await vocabManager.refreshData();
+    }
     
     console.log('Settings saved successfully');
     showStatus('✅ Settings saved successfully!', 'success', false);

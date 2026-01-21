@@ -78,6 +78,14 @@ async function initializeExtension(): Promise<void> {
     );
     
     console.log(`Received ${segments.length} subtitle segments`);
+    if (segments.length > 0) {
+      console.log('First segment sample:', {
+        text: segments[0].originalText,
+        html: segments[0].enhancedHTML?.substring(0, 100),
+        start: segments[0].startTime,
+        end: segments[0].endTime
+      });
+    }
     
     if (segments.length === 0) {
       console.warn('No subtitles available for this video');
@@ -94,6 +102,7 @@ async function initializeExtension(): Promise<void> {
     }
     
     // Start subtitle synchronization
+    console.log('Starting sync with video element:', playerState.videoElement);
     startSubtitleSync(playerState.videoElement, segments, profile);
     
     console.log('YouTube Subtitle Enhancer: Initialized successfully');

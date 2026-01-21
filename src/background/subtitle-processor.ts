@@ -150,7 +150,7 @@ export function buildEnhancedHTML(segment: SubtitleSegment): string {
       // Escape HTML in translation
       const escapedTranslation = escapeHtml(translation);
       
-      html += `<span class="yse-unknown-word" data-translation="${escapedTranslation}" title="${escapedTranslation}">${word}</span>`;
+      html += `<span class="yse-unknown-word" data-word="${word}">${word}<sup class="yse-translation">${escapedTranslation}</sup></span>`;
     } else {
       html += word;
     }
@@ -201,7 +201,7 @@ function escapeHtml(text: string): string {
  * // => ["complicated", "hypothesis"]
  * ```
  */
-export function identifyUnknownWords(words: WordAnalysis[]): Array<{
+export function identifyUnknownWords(words: WordAnalysis[], context: string): Array<{
   word: string;
   lemma: string;
   context: string;
@@ -211,7 +211,7 @@ export function identifyUnknownWords(words: WordAnalysis[]): Array<{
     .map(w => ({
       word: w.word,
       lemma: w.lemma,
-      context: '', // Context will be filled by caller
+      context: context,
     }));
 }
 
@@ -308,14 +308,67 @@ export async function processSubtitleWithTranslations(
   segments: SubtitleSegment[],
   profile: UserProfile
 ): Promise<SubtitleSegment[]> {
-  console.log(`[TEST] Processing ${segments.length} subtitle segments for uppercase test...`);
+  console.log(`Processing ${segments.length} subtitle segments...`);
   
-  return segments.map(segment => {
-    const uppercaseText = segment.originalText.toUpperCase();
-    return {
-      ...segment,
-      words: [], // Skip word analysis for this test
-      enhancedHTML: `<div class="yse-test-uppercase">${uppercaseText}</div>`,
-    };
+  // 1. Analyze all words in the subtitle
+  const processedSegments = processSubtitleBatch(segments, profile);
+  
+  // 2. Collect unique unknown words needing translation
+  const unknownWordsMap = new Map<string, { word: string; lemma: string; context: string }>();
+  
+  processedSegments.forEach(segment => {
+    const unknownInSegment = identifyUnknownWords(segment.words, segment.originalText);
+    unknownInSegment.forEach(item => {
+      // Use lemma as key to avoid duplicate translations for different forms of same word
+      if (!unknownWordsMap.has(item.lemma)) {
+        unknownWordsMap.set(item.lemma, item);
+      }
+    });
   });
+  
+  const requests = Array.from(unknownWordsMap.values());
+  
+  if (requests.length === 0) {
+    console.log('No unknown words found.');
+    return processedSegments.map(seg => ({
+      ...seg,
+      enhancedHTML: buildEnhancedHTML(seg)
+    }));
+  }
+  
+  console.log(`Translating ${requests.length} unique unknown words...`);
+  
+  try {
+    // 3. Translate words
+    const translationsResult = await translateWords(requests, profile);
+    
+    // Create a normalized map for easier lookup (lemma -> translation)
+    const translations = new Map<string, string>();
+    requests.forEach(req => {
+      const translation = translationsResult.get(req.word);
+      if (translation) {
+        translations.set(req.lemma, translation);
+      }
+    });
+    
+    // 4. Apply translations and build HTML
+    return processedSegments.map(segment => {
+      const updatedWords = applyTranslations(segment.words, translations);
+      const updatedSegment = {
+        ...segment,
+        words: updatedWords,
+      };
+      const html = buildEnhancedHTML(updatedSegment);
+      return {
+        ...updatedSegment,
+        enhancedHTML: html
+      };
+    });
+  } catch (error) {
+    console.error('Batch translation failed, falling back to original text:', error);
+    return processedSegments.map(seg => ({
+      ...seg,
+      enhancedHTML: buildEnhancedHTML(seg)
+    }));
+  }
 }
